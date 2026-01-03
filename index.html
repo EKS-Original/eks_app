@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+   <!DOCTYPE html>
 <html lang="my">
 <head>
     <meta charset="UTF-8">
@@ -161,5 +162,88 @@
         let kw = (ph == "1") ? (v*i*pf/1000) : (1.732*v*i*pf/1000);
         document.getElementById('res_ac1').innerText = "kW: "+kw.toFixed(2)+" | kVA: "+(kw/pf).toFixed(2);
     }
+
+    // 2. Amps from kW
+    function calcAC2() {
+        let ph = document.getElementById('ac2_ph').value;
+        let kw = parseFloat(document.getElementById('ac2_kw').value) || 0;
+        let v = parseFloat(document.getElementById('ac2_v').value) || 1;
+        let i = (ph == "1") ? (kw*1000)/(v*0.8) : (kw*1000)/(v*1.732*0.8);
+        document.getElementById('res_ac2').innerText = i.toFixed(2) + " Amps";
+    }
+
+    // 3. Capacitor kVAR
+    function calcKVAR() {
+        let kw = parseFloat(document.getElementById('kv_kw').value) || 0;
+        let pf1 = parseFloat(document.getElementById('kv_pf1').value) || 0.7;
+        let pf2 = parseFloat(document.getElementById('kv_pf2').value) || 0.95;
+        let kvar = kw * (Math.tan(Math.acos(pf1)) - Math.tan(Math.acos(pf2)));
+        document.getElementById('res_kvar').innerText = kvar.toFixed(2) + " kVAR";
+    }
+
+    // 4. Slip
+    function calcSlip() {
+        let s = parseFloat(document.getElementById('sl_sync').value) || 1;
+        let a = parseFloat(document.getElementById('sl_act').value) || 0;
+        document.getElementById('res_slip').innerText = (((s-a)/s)*100).toFixed(2) + " %";
+    }
+
+    // 5. Torque
+    function calcTorque() {
+        let kw = parseFloat(document.getElementById('tq_kw').value) || 0;
+        let rpm = parseFloat(document.getElementById('tq_rpm').value) || 1;
+        let t = (9550 * kw) / rpm;
+        document.getElementById('res_tq').innerText = t.toFixed(2) + " Nm";
+    }
+
+    // 6. Star Delta Phase Current
+    function calcSD() {
+        let i = parseFloat(document.getElementById('sd_line').value) || 0;
+        document.getElementById('res_sd').innerText = "Phase I: " + (i / 1.732).toFixed(2) + " A";
+    }
+
+    // 7. Ohm's Law
+    function calcOhm() {
+        let type = document.getElementById('ohm_type').value;
+        let a = parseFloat(document.getElementById('ohm_1').value) || 0;
+        let b = parseFloat(document.getElementById('ohm_2').value) || 0;
+        let r = 0;
+        if(type=="v") r = a * b;
+        if(type=="i") r = a / b;
+        if(type=="r") r = a / b;
+        document.getElementById('res_ohm').innerText = "Result: " + r.toFixed(2);
+    }
+
+    // 8. Series/Parallel Resist
+    function calcResist(isSeries) {
+        let list = document.getElementById('res_list').value.split(',').map(Number);
+        let total = isSeries ? list.reduce((a, b) => a + b, 0) : 1 / list.reduce((a, b) => a + (1/b), 0);
+        document.getElementById('res_total').innerText = "Total: " + total.toFixed(2) + " Ω";
+    }
+
+    // 9. Unit Conversions
+    function unitConv() {
+        let v = parseFloat(document.getElementById('c_val').value) || 0;
+        let t = document.getElementById('c_type').value;
+        let r = 0;
+        if(t=="hp_kw") r = v * 0.746;
+        if(t=="kw_hp") r = v / 0.746;
+        if(t=="kva_kw") r = v * 0.8;
+        if(t=="f_c") r = (v-32) * 5/9;
+        if(t=="in_cm") r = v * 2.54;
+        if(t=="mm_awg") r = "See Ref Table"; 
+        document.getElementById('res_c').innerText = "Result: " + (typeof r == 'number' ? r.toFixed(2) : r);
+    }
+
+    // 10. Battery
+    function calcBat() {
+        let ah = parseFloat(document.getElementById('bt_ah').value) || 0;
+        let v = parseFloat(document.getElementById('bt_v').value) || 1;
+        let w = parseFloat(document.getElementById('bt_w').value) || 1;
+        document.getElementById('res_bat').innerText = ((ah * v * 0.8) / w).toFixed(2) + " Hours";
+    }
+</script>
+</body>
+</html>
 
 
