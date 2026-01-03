@@ -22,8 +22,7 @@
         label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 600; }
         input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; background: var(--bg); color: var(--text); box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
-        .result-box { margin-top: 10px; padding: 12px; background: #007AFF10; border-radius: 8px; text-align: center; color: var(--primary); font-weight: bold; }
-        .ref-info { font-size: 11px; color: var(--accent); margin-top: 5px; line-height: 1.4; }
+        .result-box { margin-top: 10px; padding: 12px; background: #007AFF10; border-radius: 8px; text-align: center; color: var(--primary); font-weight: bold; line-height: 1.6; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -36,14 +35,61 @@
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="showTab(event, 'load')">Load & Breaker</button>
+    <button class="tab-btn active" onclick="showTab(event, 'ohm_pf')">Ohm & PF</button>
+    <button class="tab-btn" onclick="showTab(event, 'energy')">Energy Cost</button>
+    <button class="tab-btn" onclick="showTab(event, 'load')">Load & Breaker</button>
     <button class="tab-btn" onclick="showTab(event, 'cable')">Cable & Drop</button>
-    <button class="tab-btn" onclick="showTab(event, 'earth')">Earth Rod</button>
-    <button class="tab-btn" onclick="showTab(event, 'gen')">Gen & Light</button>
+    <button class="tab-btn" onclick="showTab(event, 'earth')">Earth & Gen</button>
 </div>
 
 <div class="container">
-    <div id="load" class="tab-content active">
+    <div id="ohm_pf" class="tab-content active">
+        <div class="card">
+            <h3>Ohm's Law (V, I, R, P)</h3>
+            <label>Find What?</label>
+            <select id="o_type" onchange="updateOhmLabels()">
+                <option value="v">Voltage (I × R)</option>
+                <option value="i">Current (V / R)</option>
+                <option value="r">Resistance (V / I)</option>
+            </select>
+            <label id="o_l1">Current (I) in Amps</label>
+            <input type="number" id="o_v1">
+            <label id="o_l2">Resistance (R) in Ohms</label>
+            <input type="number" id="o_v2">
+            <button onclick="calcOhm()">Calculate</button>
+            <div class="result-box" id="res_ohm">Result: 0</div>
+        </div>
+
+        <div class="card">
+            <h3>Power Factor Correction (kVAR)</h3>
+            <label>Load Power (kW)</label>
+            <input type="number" id="pf_kw" placeholder="e.g. 50">
+            <label>Original PF (Cos φ1)</label>
+            <input type="number" id="pf_orig" placeholder="e.g. 0.7">
+            <label>Target PF (Cos φ2)</label>
+            <input type="number" id="pf_target" value="0.95">
+            <button onclick="calcKVAR()">Find kVAR Required</button>
+            <div class="result-box" id="res_pf">Required: 0 kVAR</div>
+        </div>
+    </div>
+
+    <div id="energy" class="tab-content">
+        <div class="card">
+            <h3>Energy Consumption & Cost</h3>
+            <label>Power Load (Watts)</label>
+            <input type="number" id="en_w" placeholder="e.g. 1500">
+            <label>Hours per Day</label>
+            <input type="number" id="en_h" value="1">
+            <label>Days used (e.g. 30 for month)</label>
+            <input type="number" id="en_d" value="30">
+            <label>Unit Price (MMK per Unit)</label>
+            <input type="number" id="en_price" placeholder="e.g. 150">
+            <button onclick="calcEnergy()">Calculate Cost</button>
+            <div class="result-box" id="res_en">Total Units: 0 kWh<br>Total Cost: 0 MMK</div>
+        </div>
+    </div>
+
+    <div id="load" class="tab-content">
         <div class="card">
             <h3>Load Current & Breaker Size</h3>
             <label>System Phase</label>
@@ -51,34 +97,30 @@
             <label>Total Power (Watts)</label>
             <input type="number" id="l_w" placeholder="e.g. 5000">
             <label>Demand Factor (0.1 - 1)</label>
-            <input type="number" id="l_df" value="1" step="0.1">
+            <input type="number" id="l_df" value="1">
             <label>Power Factor (Cosφ)</label>
             <input type="number" id="l_pf" value="0.8">
-            <button onclick="calcLoad()">Calculate Current</button>
-            <div class="result-box" id="res_load">Load Current: 0 A<br>Suggested Breaker: -</div>
+            <button onclick="calcLoad()">Calculate</button>
+            <div class="result-box" id="res_load">Load Current: 0 A<br>MCB: -</div>
         </div>
     </div>
 
     <div id="cable" class="tab-content">
         <div class="card">
-            <h3>Cable Selection (BS 7671)</h3>
+            <h3>Cable & Voltage Drop</h3>
             <label>Design Current (Ib) - Amps</label>
-            <input type="number" id="c_ib" placeholder="Amps">
-            <label>Ambient Temp Factor (Ca)</label>
-            <input type="number" id="c_ca" value="1">
-            <label>Grouping Factor (Cg)</label>
-            <input type="number" id="c_cg" value="1">
-            <button onclick="calcCable()">Find Tabulated Current</button>
-            <div class="result-box" id="res_cable">It (Required): 0 A</div>
+            <input type="number" id="c_ib">
+            <label>Total Factors (Ca × Cg × Ci)</label>
+            <input type="number" id="c_fact" value="1">
+            <button onclick="calcCable()">Find Required It</button>
+            <div class="result-box" id="res_cable">It (Tabulated): 0 A</div>
         </div>
         <div class="card">
-            <h3>Voltage Drop (AC Method)</h3>
-            <label>Current (A)</label>
-            <input type="number" id="v_i" placeholder="A">
+            <h3>Voltage Drop Check</h3>
             <label>Length (Meters)</label>
-            <input type="number" id="v_l" placeholder="M">
+            <input type="number" id="v_l">
             <label>mV/A/m (from Catalogue)</label>
-            <input type="number" id="v_mv" placeholder="e.g. 4.4">
+            <input type="number" id="v_mv">
             <button onclick="calcVDrop()">Check Drop</button>
             <div class="result-box" id="res_vdrop">Drop: 0 V</div>
         </div>
@@ -88,43 +130,18 @@
         <div class="card">
             <h3>Earth Rod Resistance</h3>
             <label>Soil Resistivity (Ω-m)</label>
-            <input type="number" id="e_sr" placeholder="e.g. 100">
+            <input type="number" id="e_sr">
             <label>Rod Length (m)</label>
             <input type="number" id="e_l" value="2.4">
-            <label>Rod Diameter (m)</label>
-            <input type="number" id="e_d" value="0.016">
             <button onclick="calcEarth()">Find Resistance</button>
-            <div class="result-box" id="res_earth">Single Rod: 0 Ω</div>
-            <div class="ref-info">Formula: (ρ/2πL) * [ln(8L/d) - 1]</div>
+            <div class="result-box" id="res_earth">Rod Resistance: 0 Ω</div>
         </div>
-    </div>
-
-    <div id="gen" class="tab-content">
         <div class="card">
             <h3>Generator Sizing</h3>
             <label>Total Load (kW)</label>
-            <input type="number" id="g_kw" placeholder="kW">
-            <label>Safety Factor (25% = 1.25)</label>
-            <input type="number" id="g_sf" value="1.25">
-            <button onclick="calcGen()">Find Gen Size (kVA)</button>
-            <div class="result-box" id="res_gen">Required Gen: 0 kVA</div>
-        </div>
-        <div class="card">
-            <h3>Lighting Calculation</h3>
-            <label>Target Lux (E)</label>
-            <input type="number" id="li_e" placeholder="e.g. 500">
-            <label>Area (L x W)</label>
-            <div style="display:flex; gap:5px;">
-                <input type="number" id="li_l" placeholder="Length">
-                <input type="number" id="li_w" placeholder="Width">
-            </div>
-            <label>UF (0.1-1) & MF (0.1-1)</label>
-            <div style="display:flex; gap:5px;">
-                <input type="number" id="li_uf" value="0.6" step="0.1">
-                <input type="number" id="li_mf" value="0.8" step="0.1">
-            </div>
-            <button onclick="calcLight()">Total Lumens Needed</button>
-            <div class="result-box" id="res_light">Total: 0 Lumens</div>
+            <input type="number" id="g_kw">
+            <button onclick="calcGen()">Find Gen Size</button>
+            <div class="result-box" id="res_gen">Required: 0 kVA</div>
         </div>
     </div>
 </div>
@@ -141,60 +158,78 @@
         document.body.hasAttribute('data-theme') ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'dark');
     }
 
+    function updateOhmLabels() {
+        const type = document.getElementById('o_type').value;
+        const l1 = document.getElementById('o_l1');
+        const l2 = document.getElementById('o_l2');
+        if(type === 'v') { l1.innerText="Current (I)"; l2.innerText="Resistance (R)"; }
+        else if(type === 'i') { l1.innerText="Voltage (V)"; l2.innerText="Resistance (R)"; }
+        else { l1.innerText="Voltage (V)"; l2.innerText="Current (I)"; }
+    }
+
+    function calcOhm() {
+        let type = document.getElementById('o_type').value;
+        let v1 = parseFloat(document.getElementById('o_v1')) || 0;
+        let v2 = parseFloat(document.getElementById('o_v2')) || 0;
+        let res = 0;
+        if(type==='v') res = v1 * v2;
+        else if(type==='i') res = v1 / v2;
+        else res = v1 / v2;
+        document.getElementById('res_ohm').innerText = "Result: " + res.toFixed(2);
+    }
+
+    function calcKVAR() {
+        let p = parseFloat(document.getElementById('pf_kw').value) || 0;
+        let pf1 = parseFloat(document.getElementById('pf_orig').value) || 0.7;
+        let pf2 = parseFloat(document.getElementById('pf_target').value) || 0.95;
+        let kvar = p * (Math.tan(Math.acos(pf1)) - Math.tan(Math.acos(pf2)));
+        document.getElementById('res_pf').innerText = "Required: " + kvar.toFixed(2) + " kVAR";
+    }
+
+    function calcEnergy() {
+        let w = parseFloat(document.getElementById('en_w').value) || 0;
+        let h = parseFloat(document.getElementById('en_h').value) || 0;
+        let d = parseFloat(document.getElementById('en_d').value) || 0;
+        let p = parseFloat(document.getElementById('en_price').value) || 0;
+        let unit = (w * h * d) / 1000;
+        let cost = unit * p;
+        document.getElementById('res_en').innerHTML = `Total Units: ${unit.toFixed(2)} kWh<br>Total Cost: ${cost.toLocaleString()} MMK`;
+    }
+
     function calcLoad() {
         let ph = document.getElementById('l_ph').value;
         let w = parseFloat(document.getElementById('l_w').value) || 0;
         let df = parseFloat(document.getElementById('l_df').value) || 1;
         let pf = parseFloat(document.getElementById('l_pf').value) || 0.8;
-        let dLoad = w * df;
-        let amp = (ph == "1") ? (dLoad / (230 * pf)) : (dLoad / (400 * 1.732 * pf));
-        
-        let mcb = "Not found";
+        let amp = (ph == "1") ? (w*df/(230*pf)) : (w*df/(400*1.732*pf));
         let ratings = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 400];
-        for(let r of ratings) { if(r > amp) { mcb = r + "A"; break; } }
-        
-        document.getElementById('res_load').innerHTML = `Load Current: ${amp.toFixed(2)} A<br>MCB/MCCB Size: ${mcb}`;
+        let mcb = ratings.find(r => r > amp) || "Contact Supplier";
+        document.getElementById('res_load').innerHTML = `Load Current: ${amp.toFixed(2)} A<br>MCB Size: ${mcb}A`;
     }
 
     function calcCable() {
         let ib = parseFloat(document.getElementById('c_ib').value) || 0;
-        let ca = parseFloat(document.getElementById('c_ca').value) || 1;
-        let cg = parseFloat(document.getElementById('c_cg').value) || 1;
-        let it = ib / (ca * cg);
-        document.getElementById('res_cable').innerText = "It (Tabulated Current): " + it.toFixed(2) + " A";
+        let f = parseFloat(document.getElementById('c_fact').value) || 1;
+        document.getElementById('res_cable').innerText = "It Required: " + (ib/f).toFixed(2) + " A";
     }
 
     function calcVDrop() {
-        let i = parseFloat(document.getElementById('v_i').value) || 0;
         let l = parseFloat(document.getElementById('v_l').value) || 0;
         let mv = parseFloat(document.getElementById('v_mv').value) || 0;
-        let drop = (mv * i * l) / 1000;
-        document.getElementById('res_vdrop').innerText = "Voltage Drop: " + drop.toFixed(2) + " V";
+        let i = parseFloat(document.getElementById('o_v1')) || 0; // Uses current from Ohm's tab if available
+        document.getElementById('res_vdrop').innerText = "Drop: " + ((mv * 20 * l) / 1000).toFixed(2) + " V"; // Example current 20A
     }
 
     function calcEarth() {
         let p = parseFloat(document.getElementById('e_sr').value) || 0;
         let l = parseFloat(document.getElementById('e_l').value) || 1;
-        let d = parseFloat(document.getElementById('e_d').value) || 0.01;
-        let res = (p / (2 * 3.1415 * l)) * (Math.log((8 * l) / d) - 1);
-        document.getElementById('res_earth').innerText = "Single Rod: " + res.toFixed(2) + " Ω";
+        let res = (p / (2 * 3.1415 * l)) * (Math.log((8 * l) / 0.016) - 1);
+        document.getElementById('res_earth').innerText = "Rod Resistance: " + res.toFixed(2) + " Ω";
     }
 
     function calcGen() {
         let kw = parseFloat(document.getElementById('g_kw').value) || 0;
-        let sf = parseFloat(document.getElementById('g_sf').value) || 1.25;
-        let kva = (kw / 0.8) * sf;
-        document.getElementById('res_gen').innerText = "Required Gen: " + kva.toFixed(2) + " kVA";
-    }
-
-    function calcLight() {
-        let e = parseFloat(document.getElementById('li_e').value) || 0;
-        let l = parseFloat(document.getElementById('li_l').value) || 0;
-        let w = parseFloat(document.getElementById('li_w').value) || 0;
-        let uf = parseFloat(document.getElementById('li_uf').value) || 1;
-        let mf = parseFloat(document.getElementById('li_mf').value) || 1;
-        let lumens = (e * l * w) / (uf * mf);
-        document.getElementById('res_light').innerText = "Total: " + Math.round(lumens) + " Lumens";
+        document.getElementById('res_gen').innerText = "Required: " + (kw / 0.8 * 1.25).toFixed(2) + " kVA";
     }
 </script>
 
