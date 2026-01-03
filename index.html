@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EKS Original - Electrical Ultimate Calc</title>
+    <title>EKS Ultimate Electrical Tool</title>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/616/616494.png">
     <style>
         :root { --primary: #007AFF; --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --accent: #8e8e93; }
@@ -23,7 +23,7 @@
         input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; background: var(--bg); color: var(--text); box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
         .result-box { margin-top: 10px; padding: 15px; background: #007AFF10; border-radius: 10px; text-align: center; color: var(--primary); font-weight: bold; line-height: 1.8; }
-        .res-highlight { font-size: 22px; display: block; margin: 5px 0; color: #ff3b30; }
+        .res-highlight { font-size: 24px; display: block; margin: 5px 0; color: #ff3b30; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -31,79 +31,88 @@
 
 <div class="header">
     <div style="width:30px"></div>
-    <h2 style="font-size: 16px; margin:0;">⚡ EKS ULTIMATE CALC</h2>
+    <h2 style="font-size: 16px; margin:0;">⚡ EKS ULTIMATE PRO</h2>
     <div onclick="toggleTheme()" style="cursor:pointer; font-size: 20px;">🌓</div>
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="showTab(event, 'load_cable')">Load & Cable</button>
-    <button class="tab-btn" onclick="showTab(event, 'ohm_pf')">Ohm & PF</button>
-    <button class="tab-btn" onclick="showTab(event, 'energy')">Energy Cost</button>
+    <button class="tab-btn active" onclick="showTab(event, 'ohm_pf')">Ohm & PF</button>
+    <button class="tab-btn" onclick="showTab(event, 'load_breaker')">Load & Breaker</button>
+    <button class="tab-btn" onclick="showTab(event, 'cable_tab')">Cable & Drop</button>
+    <button class="tab-btn" onclick="showTab(event, 'energy_tab')">Energy Cost</button>
     <button class="tab-btn" onclick="showTab(event, 'earth_gen')">Earth & Gen</button>
 </div>
 
 <div class="container">
-    <div id="load_cable" class="tab-content active">
-        <div class="card">
-            <h3>Load & Breaker Selection</h3>
-            <label>System Phase</label>
-            <select id="l_ph"><option value="1">Single Phase (230V)</option><option value="3">Three Phase (400V)</option></select>
-            <label>Power (Watts)</label>
-            <input type="number" id="l_w" placeholder="e.g. 7000">
-            <label>Power Factor (Cosφ)</label>
-            <input type="number" id="l_pf" value="0.8">
-            <button onclick="calcLoad()">Calculate Load</button>
-            <div class="result-box" id="res_load">Load Current: 0 A<br>MCB: -</div>
-        </div>
-
-        <div class="card" id="cable_card">
-            <h3>Cable Sizing (BS 7671 Reference)</h3>
-            <label>Design Current (Ib) - Amps</label>
-            <input type="number" id="c_ib" placeholder="Enter Amps">
-            <label>Correction Factor (Ca × Cg × Ci)</label>
-            <input type="number" id="c_fact" value="1" step="0.01">
-            <button onclick="calcCable()">Find Cable Size</button>
-            <div class="result-box" id="res_cable">
-                It (Required): 0 A<br>
-                Recommended Cable:<br>
-                <span class="res-highlight" id="res_csize">- mm²</span>
-            </div>
-            <p style="font-size: 10px; color: grey;">*Based on PVC Insulated Copper Multi-core Cable.</p>
-        </div>
-    </div>
-
-    <div id="ohm_pf" class="tab-content">
+    <div id="ohm_pf" class="tab-content active">
         <div class="card">
             <h3>Ohm's Law</h3>
             <label>Find What?</label>
             <select id="o_type" onchange="updateOhmLabels()">
-                <option value="v">Voltage (I × R)</option>
-                <option value="i">Current (V / R)</option>
-                <option value="r">Resistance (V / I)</option>
+                <option value="v">Voltage (V = I × R)</option>
+                <option value="i">Current (I = V / R)</option>
+                <option value="r">Resistance (R = V / I)</option>
             </select>
-            <input type="number" id="o_v1" placeholder="Value 1">
-            <input type="number" id="o_v2" placeholder="Value 2">
-            <button onclick="calcOhm()">Calculate</button>
+            <input type="number" id="o_v1" placeholder="Enter Value 1">
+            <input type="number" id="o_v2" placeholder="Enter Value 2">
+            <button onclick="calcOhm()">Calculate Ohm</button>
             <div class="result-box" id="res_ohm">Result: 0</div>
         </div>
-
         <div class="card">
             <h3>PF Correction (kVAR)</h3>
-            <label>kW</label><input type="number" id="pf_kw">
-            <label>Original PF</label><input type="number" id="pf_orig" value="0.7">
+            <label>Load (kW)</label><input type="number" id="pf_kw">
+            <label>Original PF</label><input type="number" id="pf_orig" value="0.75">
             <label>Target PF</label><input type="number" id="pf_target" value="0.95">
-            <button onclick="calcKVAR()">Calculate</button>
-            <div class="result-box" id="res_pf">0 kVAR</div>
+            <button onclick="calcKVAR()">Find kVAR</button>
+            <div class="result-box" id="res_pf">Required: 0 kVAR</div>
         </div>
     </div>
 
-    <div id="energy" class="tab-content">
+    <div id="load_breaker" class="tab-content">
         <div class="card">
-            <h3>Energy Cost</h3>
-            <label>Watts</label><input type="number" id="en_w">
-            <label>Hours/Day</label><input type="number" id="en_h" value="1">
-            <label>Price/Unit (MMK)</label><input type="number" id="en_price" value="150">
-            <button onclick="calcEnergy()">Calculate</button>
+            <h3>Load Current Calculation</h3>
+            <label>System Phase</label>
+            <select id="l_ph"><option value="1">Single Phase (230V)</option><option value="3">Three Phase (400V)</option></select>
+            <label>Power (Watts)</label>
+            <input type="number" id="l_w" placeholder="e.g. 5000">
+            <label>Power Factor (Cosφ)</label>
+            <input type="number" id="l_pf" value="0.8">
+            <button onclick="calcLoad()">Calculate</button>
+            <div class="result-box" id="res_load">Load Current: 0 A<br>MCB: -</div>
+        </div>
+    </div>
+
+    <div id="cable_tab" class="tab-content">
+        <div class="card">
+            <h3>Cable Sizing (BS 7671)</h3>
+            <label>Design Current (Ib) - Amps</label>
+            <input type="number" id="c_ib" placeholder="Amps">
+            <label>Correction Factor (Ca × Cg × Ci)</label>
+            <input type="number" id="c_fact" value="1">
+            <button onclick="calcCable()">Find Cable Size</button>
+            <div class="result-box" id="res_cable">
+                It (Required): 0 A<br>
+                Cable Size:<br>
+                <span class="res-highlight" id="res_csize">- mm²</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Voltage Drop Check</h3>
+            <label>Length (Meters)</label><input type="number" id="v_l">
+            <label>Current (Amps)</label><input type="number" id="v_i">
+            <label>mV/A/m</label><input type="number" id="v_mv" placeholder="from Catalogue">
+            <button onclick="calcVDrop()">Check Drop</button>
+            <div class="result-box" id="res_vdrop">Drop: 0 V</div>
+        </div>
+    </div>
+
+    <div id="energy_tab" class="tab-content">
+        <div class="card">
+            <h3>Energy Cost Calculation</h3>
+            <label>Load (Watts)</label><input type="number" id="en_w">
+            <label>Daily Usage (Hours)</label><input type="number" id="en_h" value="5">
+            <label>Unit Price (MMK)</label><input type="number" id="en_price" value="150">
+            <button onclick="calcEnergy()">Calculate Monthly Cost</button>
             <div class="result-box" id="res_en">0 MMK</div>
         </div>
     </div>
@@ -112,12 +121,13 @@
         <div class="card">
             <h3>Earth Rod Resistance</h3>
             <label>Soil Resistivity (Ω-m)</label><input type="number" id="e_sr">
-            <button onclick="calcEarth()">Calculate</button>
+            <label>Length (m)</label><input type="number" id="e_l" value="2.4">
+            <button onclick="calcEarth()">Find Ω</button>
             <div class="result-box" id="res_earth">0 Ω</div>
         </div>
         <div class="card">
             <h3>Generator Sizing</h3>
-            <label>Total kW</label><input type="number" id="g_kw">
+            <label>Total Power (kW)</label><input type="number" id="g_kw">
             <button onclick="calcGen()">Find kVA</button>
             <div class="result-box" id="res_gen">0 kVA</div>
         </div>
@@ -141,43 +151,22 @@
         let w = parseFloat(document.getElementById('l_w').value) || 0;
         let pf = parseFloat(document.getElementById('l_pf').value) || 0.8;
         let amp = (ph == "1") ? (w/(230*pf)) : (w/(400*1.732*pf));
-        let ratings = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 400];
-        let mcb = ratings.find(r => r > amp) || "-";
-        document.getElementById('res_load').innerHTML = `Load Current: ${amp.toFixed(2)} A<br>Recommended MCB: ${mcb}A`;
-        document.getElementById('c_ib').value = amp.toFixed(2); // Auto fill into cable sizing
+        let mcb = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 400].find(r => r > amp) || "-";
+        document.getElementById('res_load').innerHTML = `Load Current: ${amp.toFixed(2)} A<br>MCB Size: ${mcb}A`;
+        document.getElementById('c_ib').value = amp.toFixed(2);
+        document.getElementById('v_i').value = amp.toFixed(2);
     }
 
     function calcCable() {
         let ib = parseFloat(document.getElementById('c_ib').value) || 0;
         let f = parseFloat(document.getElementById('c_fact').value) || 1;
         let it = ib / f;
-
-        // BS 7671 Reference Table for PVC Multicore (Enclosed in Conduit)
-        // [Size, MaxCurrent]
-        const cableTable = [
-            [1.5, 14.5], [2.5, 20], [4, 26], [6, 34], [10, 46], 
-            [16, 61], [25, 80], [35, 99], [50, 119], [70, 151], 
-            [95, 182], [120, 210], [150, 240], [185, 273], [240, 321], [300, 367]
-        ];
-
-        let selectedSize = "-";
-        for (let i = 0; i < cableTable.length; i++) {
-            if (cableTable[i][1] >= it) {
-                selectedSize = cableTable[i][0] + " mm²";
-                break;
-            }
-        }
-        
-        if (it > 367) selectedSize = "Above 300 mm² (Parallel required)";
-
-        document.getElementById('res_cable').innerHTML = `
-            It (Required): ${it.toFixed(2)} A<br>
-            Recommended Cable:<br>
-            <span class="res-highlight">${selectedSize}</span>
-        `;
+        const cableTable = [[1.5,14.5],[2.5,20],[4,26],[6,34],[10,46],[16,61],[25,80],[35,99],[50,119],[70,151],[95,182],[120,210],[150,240],[185,273],[240,321],[300,367]];
+        let size = cableTable.find(r => r[1] >= it);
+        document.getElementById('res_csize').innerText = size ? size[0] + " mm²" : "Out of Range";
+        document.getElementById('res_cable').innerHTML = `It (Required): ${it.toFixed(2)} A<br>Cable Size:<br><span class="res-highlight">${size ? size[0]+" mm²" : "N/A"}</span>`;
     }
 
-    // Other Functions
     function calcOhm() {
         let type = document.getElementById('o_type').value;
         let v1 = parseFloat(document.getElementById('o_v1')) || 0;
@@ -191,7 +180,7 @@
         let pf1 = parseFloat(document.getElementById('pf_orig').value) || 0.7;
         let pf2 = parseFloat(document.getElementById('pf_target').value) || 0.95;
         let kvar = p * (Math.tan(Math.acos(pf1)) - Math.tan(Math.acos(pf2)));
-        document.getElementById('res_pf').innerText = kvar.toFixed(2) + " kVAR";
+        document.getElementById('res_pf').innerText = "Required: " + kvar.toFixed(2) + " kVAR";
     }
 
     function calcEnergy() {
@@ -202,9 +191,17 @@
         document.getElementById('res_en').innerText = cost.toLocaleString() + " MMK / Month";
     }
 
+    function calcVDrop() {
+        let l = parseFloat(document.getElementById('v_l').value) || 0;
+        let i = parseFloat(document.getElementById('v_i').value) || 0;
+        let mv = parseFloat(document.getElementById('v_mv').value) || 0;
+        document.getElementById('res_vdrop').innerText = "Drop: " + ((mv * i * l) / 1000).toFixed(2) + " V";
+    }
+
     function calcEarth() {
         let p = parseFloat(document.getElementById('e_sr').value) || 0;
-        let res = (p / (2 * 3.1415 * 2.4)) * (Math.log((8 * 2.4) / 0.016) - 1);
+        let l = parseFloat(document.getElementById('e_l').value) || 2.4;
+        let res = (p / (2 * 3.1415 * l)) * (Math.log((8 * l) / 0.016) - 1);
         document.getElementById('res_earth').innerText = res.toFixed(2) + " Ω";
     }
 
