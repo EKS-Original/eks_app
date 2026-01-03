@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EKS Electrical Converter</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; }
+        .app-bar { background: #2196F3; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; }
+        
+        /* Tab Styles */
+        .tabs { display: flex; overflow-x: auto; background: #1976D2; white-space: nowrap; scrollbar-width: none; }
+        .tab-btn { padding: 12px 20px; color: white; border: none; background: none; cursor: pointer; opacity: 0.7; }
+        .tab-btn.active { opacity: 1; border-bottom: 3px solid white; font-weight: bold; }
+        
+        .tab-content { display: none; padding: 20px; max-width: 500px; margin: auto; }
+        .tab-content.active { display: block; }
+
+        /* UI Elements */
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #555; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        .result { margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 8px; color: #0d47a1; font-weight: bold; text-align: center; font-size: 18px; }
+        .ref-text { font-size: 14px; color: #666; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="app-bar">EKS Electrical Converter</div>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab(event, 'Basic')">Basic</button>
+    <button class="tab-btn" onclick="openTab(event, 'AC')">AC Power</button>
+    <button class="tab-btn" onclick="openTab(event, 'Mech')">Mechanical</button>
+    <button class="tab-btn" onclick="openTab(event, 'Cable')">Cable</button>
+    <button class="tab-btn" onclick="openTab(event, 'Energy')">Energy</button>
+    <button class="tab-btn" onclick="openTab(event, 'Star')">Star-Delta</button>
+    <button class="tab-btn" onclick="openTab(event, 'About')">About</button>
+</div>
+
+<div id="Basic" class="tab-content active">
+    <div class="card">
+        <h3>Basic Units</h3>
+        <label>တန်ဖိုးထည့်ပါ</label>
+        <input type="number" id="basicInput" placeholder="0">
+        <label>မှ (From)</label>
+        <select id="basicFrom">
+            <option value="1">V / A / W / Ω</option>
+            <option value="1000">kV / kA / kW / kΩ</option>
+            <option value="1000000">MV / MA / MW / MΩ</option>
+            <option value="0.001">mV / mA / mW</option>
+        </select>
+        <label>သို့ (To)</label>
+        <select id="basicTo">
+            <option value="1">V / A / W / Ω</option>
+            <option value="1000" selected>kV / kA / kW / kΩ</option>
+        </select>
+        <button onclick="calcBasic()">Calculate</button>
+        <div id="basicRes" class="result">Result = 0</div>
+    </div>
+</div>
+
+<div id="AC" class="tab-content">
+    <div class="card">
+        <h3>AC Power Calculation</h3>
+        <select id="phase">
+            <option value="1">1 Phase</option>
+            <option value="3">3 Phase</option>
+        </select>
+        <input type="number" id="v_ac" placeholder="Voltage (V)">
+        <input type="number" id="i_ac" placeholder="Current (A)">
+        <input type="number" id="pf_ac" value="0.8" placeholder="Power Factor">
+        <button onclick="calcAC()">Calculate</button>
+        <div id="acRes" class="result">kW = 0, kVA = 0</div>
+    </div>
+</div>
+
+<div id="Mech" class="tab-content">
+    <div class="card">
+        <h3>Mechanical Power</h3>
+        <input type="number" id="hp_in" placeholder="HP (မြင်းကောင်ရေ)">
+        <input type="number" id="rpm_in" placeholder="RPM">
+        <input type="number" id="tq_in" placeholder="Torque (Nm)">
+        <button onclick="calcMech()">Calculate</button>
+        <div id="mechRes" class="result">kW = 0</div>
+    </div>
+</div>
+
+<div id="Cable" class="tab-content">
+    <div class="card">
+        <h3>AWG to mm² Reference</h3>
+        <p class="ref-text">
+            AWG 10 = 5.26 mm²<br>
+            AWG 8 = 8.37 mm²<br>
+            AWG 6 = 13.3 mm²<br>
+            AWG 4 = 21.15 mm²
+        </p>
+    </div>
+</div>
+
+<div id="Energy" class="tab-content">
+    <div class="card">
+        <h3>Energy (Monthly)</h3>
+        <input type="number" id="load_kw" placeholder="Load (kW)">
+        <input type="number" id="hours" placeholder="Hours per Day">
+        <button onclick="calcEnergy()">Calculate</button>
+        <div id="energyRes" class="result">Monthly = 0 kWh</div>
+    </div>
+</div>
+
+<div id="Star" class="tab-content">
+    <div class="card">
+        <h3>Star-Delta Voltage</h3>
+        <input type="number" id="v_delta" placeholder="Delta Line Voltage (V)">
+        <button onclick="calcStar()">Calculate</button>
+        <div id="starRes" class="result">Star Phase V = 0</div>
+    </div>
+</div>
+
+<div id="About" class="tab-content">
+    <div class="card" style="text-align: center;">
+        <h2>EKS Converter</h2>
+        <p>Myanmar Engineers & Technicians အတွက်</p>
+        <p><b>Developed by EKS</b></p>
+        <p>Electrical Knowledge Sharing</p>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    function calcBasic() {
+        let val = parseFloat(document.getElementById('basicInput').value) || 0;
+        let from = parseFloat(document.getElementById('basicFrom').value);
+        let to = parseFloat(document.getElementById('basicTo').value);
+        let res = (val * from) / to;
+        document.getElementById('basicRes').innerText = "Result = " + res.toFixed(4);
+    }
+
+    function calcAC() {
+        let ph = document.getElementById('phase').value;
+        let v = parseFloat(document.getElementById('v_ac').value) || 0;
+        let i = parseFloat(document.getElementById('i_ac').value) || 0;
+        let pf = parseFloat(document.getElementById('pf_ac').value) || 0;
+        let kw = (ph == "1") ? (v * i * pf / 1000) : (1.732 * v * i * pf / 1000);
+        let kva = kw / pf;
+        document.getElementById('acRes').innerText = "kW: " + kw.toFixed(2) + " | kVA: " + kva.toFixed(2);
+    }
+
+    function calcMech() {
+        let hp = parseFloat(document.getElementById('hp_in').value) || 0;
+        let rpm = parseFloat(document.getElementById('rpm_in').value) || 0;
+        let t = parseFloat(document.getElementById('tq_in').value) || 0;
+        let kw = (hp > 0) ? (hp * 0.746) : (2 * 3.1415 * rpm * t / 60000);
+        document.getElementById('mechRes').innerText = "Power ≈ " + kw.toFixed(2) + " kW";
+    }
+
+    function calcEnergy() {
+        let l = parseFloat(document.getElementById('load_kw').value) || 0;
+        let h = parseFloat(document.getElementById('hours').value) || 0;
+        document.getElementById('energyRes').innerText = "Monthly ≈ " + (l * h * 30).toFixed(1) + " kWh";
+    }
+
+    function calcStar() {
+        let v = parseFloat(document.getElementById('v_delta').value) || 0;
+        document.getElementById('starRes').innerText = "Star Phase Voltage = " + (v / 1.732).toFixed(1) + " V";
+    }
+</script>
+
+</body>
+</html>
