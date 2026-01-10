@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EKS Ultimate PRO</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/616/616494.png">
+    <title>EKS Ultimate PRO - Admin Integrated</title>
     <style>
         :root { --primary: #007AFF; --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --accent: #8e8e93; }
         [data-theme="dark"] { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --accent: #8e8e93; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; }
         
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .login-card { background: var(--card); padding: 35px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); text-align: center; width: 85%; max-width: 360px; }
-        .login-logo { font-size: 60px; margin-bottom: 10px; }
+        /* Activation Layer */
+        #activation-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .activation-card { background: var(--card); padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 380px; }
+        .device-id-box { background: #e5e5ea; padding: 12px; border-radius: 10px; font-family: monospace; font-size: 15px; margin: 15px 0; border: 1px dashed var(--primary); color: var(--primary); cursor: pointer; font-weight: bold; }
         
         #app-content { display: none; }
-
-        .header { background: var(--card); padding: 15px; text-align: center; box-shadow: 0 1px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .header { background: var(--card); padding: 15px; text-align: center; box-shadow: 0 1px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .tabs { display: flex; overflow-x: auto; background: var(--card); padding: 10px; gap: 8px; border-bottom: 1px solid #ddd; scrollbar-width: none; }
         .tab-btn { padding: 10px 20px; border: none; background: #e5e5ea; border-radius: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; font-size: 13px; }
         .tab-btn.active { background: var(--primary); color: white; }
@@ -28,28 +27,28 @@
         label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; }
         input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; background: var(--bg); color: var(--text); box-sizing: border-box; font-size: 14px; }
         button { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .result-box { margin-top: 10px; padding: 15px; background: #007AFF15; border-radius: 12px; text-align: center; color: var(--primary); font-weight: bold; line-height: 1.8; border: 1px dashed var(--primary); }
-        .res-highlight { font-size: 26px; display: block; margin: 5px 0; color: #ff3b30; }
+        .result-box { margin-top: 10px; padding: 15px; background: #007AFF15; border-radius: 12px; text-align: center; color: var(--primary); font-weight: bold; border: 1px dashed var(--primary); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="login-overlay">
-    <div class="login-card">
-        <div class="login-logo">⚡</div>
-        <h2 style="margin:0 0 5px 0;">EKS PRO ACCESS</h2>
-        <p style="font-size: 13px; color: var(--accent); margin-bottom: 25px;">ကိုယ်ပိုင်အသုံးပြုခွင့်ရှိသူများသာ</p>
-        <input type="password" id="pass-input" placeholder="Password ရိုက်ထည့်ပါ">
-        <button onclick="checkPass()">Login</button>
-        <p id="err-msg" style="color:#ff3b30; font-size: 12px; margin-top:15px; display:none; font-weight:600;">⚠️ Password မှားယွင်းနေပါသည်။</p>
+<div id="activation-overlay">
+    <div class="activation-card">
+        <div style="font-size: 50px;">🔒</div>
+        <h2 style="margin:10px 0;">EKS PRO ACTIVATION</h2>
+        <p style="font-size: 12px; color: var(--accent);">အသုံးပြုရန် အောက်ပါ Device ID ကို Copy ယူ၍ ဝယ်ယူထားသော Page သို့ ပို့ပေးပါ။</p>
+        <div class="device-id-box" id="display-device-id" onclick="copyID()">Generating ID...</div>
+        <input type="text" id="license-key-input" placeholder="License Key ထည့်ပါ">
+        <button onclick="activateApp()">Activate Full Access</button>
+        <p id="error-msg" style="color:red; font-size: 11px; margin-top:10px; display:none;">❌ License Key မမှန်ကန်ပါ။</p>
     </div>
 </div>
 
 <div id="app-content">
     <div class="header">
         <div style="width:30px"></div>
-        <h2 style="font-size: 16px; margin:0;">EKS ULTIMATE PRO</h2>
+        <h2 style="font-size: 15px; margin:0;">EKS ULTIMATE PRO</h2>
         <div onclick="toggleTheme()" style="cursor:pointer; font-size: 20px;">🌓</div>
     </div>
 
@@ -64,36 +63,30 @@
     <div class="container">
         <div id="ohm_pf" class="tab-content active">
             <div class="card">
-                <h3>Ohm's Law Calculation</h3>
-                <label>တွက်ချက်မည့်ပုံစံ</label>
-                <select id="o_type">
-                    <option value="v">Voltage (I × R)</option>
-                    <option value="i">Current (V / R)</option>
-                    <option value="r">Resistance (V / I)</option>
-                </select>
-                <input type="number" id="o_v1" placeholder="Value 1 (e.g. Current or Voltage)">
-                <input type="number" id="o_v2" placeholder="Value 2 (e.g. Resistance)">
-                <button onclick="calcOhm()">Calculate Result</button>
+                <h3>Ohm's Law</h3>
+                <select id="o_type"><option value="v">Voltage (I × R)</option><option value="i">Current (V / R)</option><option value="r">Resistance (V / I)</option></select>
+                <input type="number" id="o_v1" placeholder="Value 1">
+                <input type="number" id="o_v2" placeholder="Value 2">
+                <button onclick="calcOhm()">Calculate</button>
                 <div class="result-box" id="res_ohm">Result: 0</div>
             </div>
             <div class="card">
-                <h3>Power Factor Correction (kVAR)</h3>
-                <label>Load Power (kW)</label><input type="number" id="pf_kw">
-                <label>Original PF (Cos φ1)</label><input type="number" id="pf_orig" value="0.75">
-                <label>Target PF (Cos φ2)</label><input type="number" id="pf_target" value="0.95">
-                <button onclick="calcKVAR()">Find Capacitor kVAR</button>
+                <h3>PF Correction (kVAR)</h3>
+                <label>Load (kW)</label><input type="number" id="pf_kw">
+                <label>Original PF</label><input type="number" id="pf_orig" value="0.75">
+                <label>Target PF</label><input type="number" id="pf_target" value="0.95">
+                <button onclick="calcKVAR()">Find kVAR</button>
                 <div class="result-box" id="res_pf">Required: 0 kVAR</div>
             </div>
         </div>
 
         <div id="load_breaker" class="tab-content">
             <div class="card">
-                <h3>Load Current & Breaker</h3>
-                <label>Phase System</label>
-                <select id="l_ph"><option value="1">1 Phase (230V)</option><option value="3">3 Phase (400V)</option></select>
-                <label>Power (Watts)</label><input type="number" id="l_w" placeholder="Total Watts">
+                <h3>Load Current & MCB</h3>
+                <label>Phase</label><select id="l_ph"><option value="1">1 Phase</option><option value="3">3 Phase</option></select>
+                <label>Total Watts</label><input type="number" id="l_w" placeholder="Watts">
                 <label>Power Factor</label><input type="number" id="l_pf" value="0.8">
-                <button onclick="calcLoad()">Find Current & MCB</button>
+                <button onclick="calcLoad()">Calculate</button>
                 <div class="result-box" id="res_load">Current: 0 A<br>MCB: -</div>
             </div>
         </div>
@@ -101,73 +94,90 @@
         <div id="cable_tab" class="tab-content">
             <div class="card">
                 <h3>Cable Sizing (mm²)</h3>
-                <label>Design Current (Ib) - Amps</label><input type="number" id="c_ib">
-                <label>Correction Factor (Ca×Cg×Ci)</label><input type="number" id="c_fact" value="1">
-                <button onclick="calcCable()">Find Standard Cable</button>
-                <div class="result-box" id="res_cable">
-                    It: 0 A<br>Size: <span class="res-highlight" id="res_csize">- mm²</span>
-                </div>
+                <label>Current (Ib)</label><input type="number" id="c_ib">
+                <label>Correction Factor</label><input type="number" id="c_fact" value="1">
+                <button onclick="calcCable()">Find Size</button>
+                <div class="result-box" id="res_cable">Size: - mm²</div>
             </div>
             <div class="card">
-                <h3>Voltage Drop Analysis</h3>
-                <label>Distance (Meters)</label><input type="number" id="v_l">
-                <label>Current (Amps)</label><input type="number" id="v_i">
+                <h3>Voltage Drop</h3>
+                <label>Distance (M)</label><input type="number" id="v_l">
+                <label>Current (A)</label><input type="number" id="v_i">
                 <label>mV/A/m</label><input type="number" id="v_mv">
-                <button onclick="calcVDrop()">Check Voltage Drop</button>
+                <button onclick="calcVDrop()">Check Drop</button>
                 <div class="result-box" id="res_vdrop">Drop: 0 V</div>
             </div>
         </div>
 
         <div id="energy_tab" class="tab-content">
             <div class="card">
-                <h3>Energy Consumption Cost</h3>
-                <label>Power (Watts)</label><input type="number" id="en_w">
-                <label>Daily Use (Hours)</label><input type="number" id="en_h" value="10">
-                <label>Price Per Unit (MMK)</label><input type="number" id="en_price" value="150">
-                <button onclick="calcEnergy()">Calculate Monthly Bill</button>
+                <h3>Energy Bill</h3>
+                <label>Watts</label><input type="number" id="en_w">
+                <label>Hours/Day</label><input type="number" id="en_h" value="10">
+                <label>Price/Unit (MMK)</label><input type="number" id="en_price" value="150">
+                <button onclick="calcEnergy()">Calculate Cost</button>
                 <div class="result-box" id="res_en">0 MMK / Month</div>
             </div>
         </div>
 
         <div id="earth_gen" class="tab-content">
             <div class="card">
-                <h3>Earth Rod Resistance</h3>
+                <h3>Earth & Generator</h3>
                 <label>Soil Resistivity (Ω-m)</label><input type="number" id="e_sr">
-                <label>Rod Length (m)</label><input type="number" id="e_l" value="2.4">
-                <button onclick="calcEarth()">Find Resistance</button>
+                <button onclick="calcEarth()">Earth Ω</button>
                 <div class="result-box" id="res_earth">0 Ω</div>
-            </div>
-            <div class="card">
-                <h3>Generator Sizing</h3>
-                <label>Total Power (kW)</label><input type="number" id="g_kw">
-                <button onclick="calcGen()">Find Generator Size</button>
-                <div class="result-box" id="res_gen">Required: 0 kVA</div>
+                <br>
+                <label>Total kW</label><input type="number" id="g_kw">
+                <button onclick="calcGen()">Gen kVA</button>
+                <div class="result-box" id="res_gen">0 kVA</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const APP_PASS = "eksprivacyoriginal";
+    const SALT = "EKS_ORIGINAL_99";
 
-    function checkPass() {
-        const input = document.getElementById('pass-input').value;
-        if(input === APP_PASS) {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            sessionStorage.setItem('eks_auth', 'true');
+    // --- ADMIN MODE LOGIC ---
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+        let devID = prompt("User ဆီကရတဲ့ Device ID ကို ထည့်ပါ (ဥပမာ EKS-XXXX):");
+        if(devID) {
+            let generatedKey = btoa(devID.trim() + SALT).substring(0, 12).toUpperCase();
+            alert("ဒီ User အတွက် ပေးရမည့် License Key ကတော့: \n\n" + generatedKey);
+        }
+    }
+
+    function generateID() {
+        let info = navigator.userAgent.length + window.screen.width.toString();
+        return "EKS-" + btoa(info).substring(0, 8).toUpperCase();
+    }
+    const myID = generateID();
+    document.getElementById('display-device-id').innerText = myID;
+
+    function activateApp() {
+        const input = document.getElementById('license-key-input').value.trim();
+        const correctKey = btoa(myID + SALT).substring(0, 12).toUpperCase();
+        if(input === correctKey) {
+            localStorage.setItem('eks_license_v1', input);
+            location.reload();
         } else {
-            document.getElementById('err-msg').style.display = 'block';
+            document.getElementById('error-msg').style.display = 'block';
         }
     }
 
     window.onload = function() {
-        if(sessionStorage.getItem('eks_auth') === 'true') {
-            document.getElementById('login-overlay').style.display = 'none';
+        const key = localStorage.getItem('eks_license_v1');
+        const correctKey = btoa(myID + SALT).substring(0, 12).toUpperCase();
+        if(key === correctKey) {
+            document.getElementById('activation-overlay').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
         }
     }
 
+    function copyID() { navigator.clipboard.writeText(myID); alert("Device ID copied!"); }
+
+    // --- CALCULATION LOGIC ---
     function showTab(e, id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -175,23 +185,14 @@
         e.currentTarget.classList.add('active');
     }
 
-    function toggleTheme() {
-        document.body.hasAttribute('data-theme') ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'dark');
-    }
+    function toggleTheme() { document.body.hasAttribute('data-theme') ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'dark'); }
 
-    // Fixed Ohm's Law Calculation
     function calcOhm() {
         let type = document.getElementById('o_type').value;
         let v1 = parseFloat(document.getElementById('o_v1').value) || 0;
         let v2 = parseFloat(document.getElementById('o_v2').value) || 0;
-        let res = 0;
-        let unit = "";
-
-        if (type === 'v') { res = v1 * v2; unit = " V"; }
-        else if (type === 'i') { res = v1 / v2; unit = " A"; }
-        else if (type === 'r') { res = v1 / v2; unit = " Ω"; }
-
-        document.getElementById('res_ohm').innerText = "Result: " + (isNaN(res) ? "0" : res.toFixed(2)) + unit;
+        let res = (type === 'v') ? v1 * v2 : v1 / v2;
+        document.getElementById('res_ohm').innerText = "Result: " + res.toFixed(2);
     }
 
     function calcKVAR() {
@@ -199,7 +200,7 @@
         let pf1 = parseFloat(document.getElementById('pf_orig').value) || 0.75;
         let pf2 = parseFloat(document.getElementById('pf_target').value) || 0.95;
         let kvar = p * (Math.tan(Math.acos(pf1)) - Math.tan(Math.acos(pf2)));
-        document.getElementById('res_pf').innerText = "Required: " + (isNaN(kvar) ? "0" : kvar.toFixed(2)) + " kVAR";
+        document.getElementById('res_pf').innerText = "Required: " + (isNaN(kvar) ? 0 : kvar.toFixed(2)) + " kVAR";
     }
 
     function calcLoad() {
@@ -219,38 +220,33 @@
         let it = ib / f;
         const cableTable = [[1.5,14.5],[2.5,20],[4,26],[6,34],[10,46],[16,61],[25,80],[35,99],[50,119],[70,151],[95,182],[120,210],[150,240],[185,273],[240,321],[300,367]];
         let findSize = cableTable.find(r => r[1] >= it);
-        let sizeText = findSize ? findSize[0] + " mm²" : "Large Size";
-        document.getElementById('res_cable').innerHTML = `It: ${it.toFixed(2)} A<br>Size: <span class="res-highlight">${sizeText}</span>`;
+        document.getElementById('res_cable').innerText = "Size: " + (findSize ? findSize[0] + " mm²" : "Large Size");
     }
 
     function calcVDrop() {
         let l = parseFloat(document.getElementById('v_l').value) || 0;
         let i = parseFloat(document.getElementById('v_i').value) || 0;
         let mv = parseFloat(document.getElementById('v_mv').value) || 0;
-        let drop = (mv * i * l) / 1000;
-        document.getElementById('res_vdrop').innerText = "Drop: " + drop.toFixed(2) + " V";
+        document.getElementById('res_vdrop').innerText = "Drop: " + ((mv * i * l) / 1000).toFixed(2) + " V";
     }
 
     function calcEnergy() {
         let w = parseFloat(document.getElementById('en_w').value) || 0;
         let h = parseFloat(document.getElementById('en_h').value) || 0;
         let p = parseFloat(document.getElementById('en_price').value) || 0;
-        let unit = (w * h * 30) / 1000;
-        let cost = unit * p;
+        let cost = (w * h * 30 / 1000) * p;
         document.getElementById('res_en').innerText = cost.toLocaleString() + " MMK / Month";
     }
 
     function calcEarth() {
         let p = parseFloat(document.getElementById('e_sr').value) || 0;
-        let l = parseFloat(document.getElementById('e_l').value) || 2.4;
-        let res = (p / (2 * 3.1415 * l)) * (Math.log((8 * l) / 0.016) - 1);
+        let res = (p / (2 * 3.14 * 2.4)) * (Math.log((8 * 2.4) / 0.016) - 1);
         document.getElementById('res_earth').innerText = res.toFixed(2) + " Ω";
     }
 
     function calcGen() {
         let kw = parseFloat(document.getElementById('g_kw').value) || 0;
-        let kva = (kw / 0.8) * 1.25;
-        document.getElementById('res_gen').innerText = kva.toFixed(2) + " kVA";
+        document.getElementById('res_gen').innerText = (kw / 0.8 * 1.25).toFixed(2) + " kVA";
     }
 </script>
 </body>
